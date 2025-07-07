@@ -1,0 +1,94 @@
+# Logs et debug
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Dossiers de dépendances
+node_modules/
+bower_components/
+
+# Fichiers de cache
+.cache/
+.tmp/
+*.tmp
+*.temp
+
+# Fichiers système
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python specifique
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Variables d'environnement
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*.old
+
+# Fichiers temporaires de développement
+debug/
+test-output/
+coverage/
+
+# Fichiers spécifiques au projet
+# (ajoutez ici vos exclusions spécifiques)

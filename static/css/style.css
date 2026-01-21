@@ -364,6 +364,251 @@ body {
 /* ========================================
    Responsive
    ======================================== */
+/* ========================================
+   Missions Panel
+   ======================================== */
+#missions-panel {
+    position: absolute;
+    top: 120px;
+    right: 200px;
+    min-width: 180px;
+    max-height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--panel-gap);
+}
+
+.missions-list {
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-right: 5px;
+}
+
+.missions-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.missions-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
+}
+
+.missions-list::-webkit-scrollbar-thumb {
+    background: var(--color-primary);
+    border-radius: 2px;
+}
+
+.mission-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+    padding: 6px 10px;
+}
+
+.mission-btn .mission-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.mission-btn .mission-name {
+    flex: 1;
+    font-size: 9px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mission-btn .mission-status {
+    font-size: 7px;
+    opacity: 0.7;
+}
+
+/* ========================================
+   Mission Info Cartouche
+   ======================================== */
+#mission-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 320px;
+    max-width: 400px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+    border: 2px solid var(--color-secondary);
+    box-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
+}
+
+#mission-info.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mission-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 102, 0, 0.3);
+}
+
+.mission-info-title {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--color-secondary);
+    text-shadow: var(--glow-secondary);
+}
+
+.mission-info-agency {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    margin-top: 4px;
+}
+
+.mission-info-type {
+    font-size: 9px;
+    padding: 3px 8px;
+    background: rgba(255, 102, 0, 0.2);
+    border: 1px solid var(--color-secondary);
+    border-radius: 10px;
+    color: var(--color-secondary);
+}
+
+.mission-info-status {
+    font-size: 10px;
+    padding: 5px 10px;
+    background: rgba(0, 255, 136, 0.1);
+    border-left: 3px solid #00ff88;
+    margin-bottom: 12px;
+    color: #00ff88;
+}
+
+.mission-info-status.inactive {
+    background: rgba(255, 100, 100, 0.1);
+    border-left-color: #ff6464;
+    color: #ff6464;
+}
+
+.mission-info-description {
+    font-size: 11px;
+    line-height: 1.5;
+    color: var(--color-text);
+    margin-bottom: 12px;
+}
+
+.mission-info-dates {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 12px;
+    font-size: 10px;
+}
+
+.mission-info-dates div {
+    flex: 1;
+}
+
+.mission-info-dates .label {
+    color: var(--color-text-muted);
+    display: block;
+    margin-bottom: 2px;
+}
+
+.mission-info-dates .value {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+.mission-info-chars {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: var(--border-radius-sm);
+}
+
+.mission-info-chars-title {
+    font-size: 10px;
+    color: var(--color-primary);
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.mission-info-chars-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    font-size: 9px;
+}
+
+.mission-info-chars-grid .char-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.mission-info-chars-grid .char-label {
+    color: var(--color-text-muted);
+}
+
+.mission-info-chars-grid .char-value {
+    color: var(--color-text);
+}
+
+.mission-info-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: 1px solid var(--color-text-muted);
+    border-radius: 50%;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: all var(--transition-fast);
+}
+
+.mission-info-close:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+}
+
+/* ========================================
+   Mission Trajectory Legend
+   ======================================== */
+.mission-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+    color: var(--color-text-muted);
+    padding: 5px 0;
+}
+
+.mission-legend .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.mission-legend .dot--start {
+    background: #00ff00;
+}
+
+.mission-legend .dot--end {
+    background: var(--color-secondary);
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
 @media (max-width: 768px) {
     #title {
         font-size: 18px;
@@ -389,5 +634,17 @@ body {
 
     #trail-panel {
         min-width: 120px;
+    }
+
+    #missions-panel {
+        right: 20px;
+        top: auto;
+        bottom: 140px;
+        max-height: 200px;
+    }
+
+    #mission-info {
+        min-width: 280px;
+        max-width: 90vw;
     }
 }

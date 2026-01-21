@@ -26,6 +26,13 @@ import {
     getPlanetInfo,
 } from './voyage.js';
 import { PLANETS, TRAILS, VOYAGE } from './config.js';
+import {
+    getAllMissions,
+    toggleMission,
+    isMissionActive,
+    getMissionInfo,
+    initMissions,
+} from './missions.js';
 
 // ========================================
 // UI Elements
@@ -35,6 +42,8 @@ let trailPanel = null;
 let controlPanel = null;
 let voyagePanel = null;
 let planetInfoPanel = null;
+let missionsPanel = null;
+let missionInfoPanel = null;
 let asteroidCounter = null;
 let voyageInfo = null;
 let speedValueDisplay = null;
@@ -352,6 +361,144 @@ export function hideLoadingScreen() {
 }
 
 // ========================================
+// Missions Panel
+// ========================================
+function createMissionsPanel() {
+    missionsPanel = createPanel('missions-panel', 'MISSIONS SPATIALES', '');
+
+    // Liste scrollable des missions
+    const missionsList = document.createElement('div');
+    missionsList.className = 'missions-list';
+
+    const missions = getAllMissions();
+    missions.forEach((mission) => {
+        const btn = document.createElement('button');
+        btn.className = 'btn mission-btn';
+        if (isMissionActive(mission.id)) {
+            btn.classList.add('btn--active');
+        }
+
+        btn.innerHTML = `
+            <span class="mission-color" style="background: #${mission.color.toString(16).padStart(6, '0')}"></span>
+            <span class="mission-name">${mission.name}</span>
+        `;
+
+        btn.addEventListener('click', () => {
+            const isActive = toggleMission(mission.id);
+            btn.classList.toggle('btn--active', isActive);
+        });
+
+        // Double-click pour afficher les infos
+        btn.addEventListener('dblclick', () => {
+            showMissionInfo(mission.id);
+        });
+
+        missionsList.appendChild(btn);
+    });
+
+    missionsPanel.appendChild(missionsList);
+
+    // Legende
+    const legend = document.createElement('div');
+    legend.className = 'mission-legend';
+    legend.innerHTML = `
+        <span class="dot dot--start"></span> Depart
+        <span class="dot dot--end"></span> Position actuelle
+    `;
+    missionsPanel.appendChild(legend);
+
+    // Bouton tout afficher/masquer
+    const toggleAllBtn = createButton('Tout afficher', {
+        small: true,
+        onClick: () => {
+            const allActive = missions.every((m) => isMissionActive(m.id));
+            missions.forEach((m) => {
+                if (allActive) {
+                    if (isMissionActive(m.id)) toggleMission(m.id);
+                } else {
+                    if (!isMissionActive(m.id)) toggleMission(m.id);
+                }
+            });
+            // Mettre a jour les boutons
+            missionsList.querySelectorAll('.mission-btn').forEach((btn, i) => {
+                btn.classList.toggle('btn--active', isMissionActive(missions[i].id));
+            });
+            toggleAllBtn.textContent = allActive ? 'Tout afficher' : 'Tout masquer';
+        },
+    });
+    missionsPanel.appendChild(toggleAllBtn);
+}
+
+// ========================================
+// Mission Info Cartouche
+// ========================================
+function createMissionInfoPanel() {
+    missionInfoPanel = document.createElement('div');
+    missionInfoPanel.id = 'mission-info';
+    missionInfoPanel.className = 'panel';
+    document.body.appendChild(missionInfoPanel);
+}
+
+export function showMissionInfo(missionId) {
+    const mission = getMissionInfo(missionId);
+    if (!mission || !missionInfoPanel) return;
+
+    const isActive = mission.status.toLowerCase().includes('active');
+    const chars = mission.characteristics;
+    const charsHtml = Object.entries(chars)
+        .map(
+            ([key, value]) => `
+            <div class="char-item">
+                <span class="char-label">${key.charAt(0).toUpperCase() + key.slice(1)}:</span>
+                <span class="char-value">${value}</span>
+            </div>
+        `
+        )
+        .join('');
+
+    missionInfoPanel.innerHTML = `
+        <button class="mission-info-close" onclick="document.getElementById('mission-info').classList.remove('visible')">&times;</button>
+        <div class="mission-info-header">
+            <div>
+                <div class="mission-info-title">${mission.name}</div>
+                <div class="mission-info-agency">${mission.agency}</div>
+            </div>
+            <span class="mission-info-type">${mission.type}</span>
+        </div>
+        <div class="mission-info-status ${isActive ? '' : 'inactive'}">
+            ${mission.status}
+        </div>
+        <div class="mission-info-description">
+            ${mission.description}
+        </div>
+        <div class="mission-info-dates">
+            <div>
+                <span class="label">Lancement</span>
+                <span class="value">${mission.launchDate}</span>
+            </div>
+            <div>
+                <span class="label">Fin de controle</span>
+                <span class="value">${mission.endControl || 'En cours'}</span>
+            </div>
+        </div>
+        <div class="mission-info-chars">
+            <div class="mission-info-chars-title">Caracteristiques</div>
+            <div class="mission-info-chars-grid">
+                ${charsHtml}
+            </div>
+        </div>
+    `;
+
+    missionInfoPanel.classList.add('visible');
+}
+
+export function hideMissionInfo() {
+    if (missionInfoPanel) {
+        missionInfoPanel.classList.remove('visible');
+    }
+}
+
+// ========================================
 // Initialize UI
 // ========================================
 export function initUI() {
@@ -360,9 +507,14 @@ export function initUI() {
     createControlPanel();
     createVoyagePanel();
     createPlanetInfoPanel();
+    createMissionsPanel();
+    createMissionInfoPanel();
 
     // Initialiser le referentiel sur le Soleil
     referentialSystem.setCenter(-1);
+
+    // Initialiser les missions (Voyager 1 & 2 par defaut)
+    initMissions();
 
     console.log('Interface utilisateur initialisee');
 }

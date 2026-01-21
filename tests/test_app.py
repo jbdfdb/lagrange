@@ -109,9 +109,20 @@ class TestStaticFiles:
             'referential.js',
             'asteroids.js',
             'voyage.js',
+            'missions.js',
             'ui.js',
             'main.js',
         ]
         for module in modules:
             response = client.get(f'/static/js/{module}')
             assert response.status_code == 200, f"Module {module} non trouve"
+
+    def test_missions_module_contains_data(self, client):
+        """Verifie que le module missions contient des donnees."""
+        response = client.get('/static/js/missions.js')
+        assert response.status_code == 200
+        data = response.data.decode()
+        assert 'MISSIONS_DATA' in data
+        assert 'Voyager 1' in data
+        assert 'Voyager 2' in data
+        assert 'Apollo 11' in data

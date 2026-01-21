@@ -1,0 +1,393 @@
+/**
+ * Lagrange - Styles
+ * Systeme Solaire 3D Interactif
+ *
+ * Theme: Cyberpunk / Futuriste
+ * Couleurs: Cyan (#00FFFF), Orange (#FF6600)
+ */
+
+/* ========================================
+   CSS Variables
+   ======================================== */
+:root {
+    /* Colors */
+    --color-primary: #00FFFF;
+    --color-secondary: #FF6600;
+    --color-bg-dark: rgba(0, 0, 0, 0.85);
+    --color-bg-darker: rgba(0, 0, 0, 0.9);
+    --color-text: #FFFFFF;
+    --color-text-muted: #AAAAAA;
+    --color-sun: #FFFF00;
+
+    /* Gradients */
+    --gradient-bg: linear-gradient(135deg, #000011 0%, #000033 100%);
+    --gradient-btn: linear-gradient(45deg, #001122, #003366);
+    --gradient-btn-hover: linear-gradient(45deg, #003366, #0066AA);
+    --gradient-btn-active: linear-gradient(45deg, #AA3300, #FF6600);
+
+    /* Glows */
+    --glow-primary: 0 0 20px #00FFFF;
+    --glow-secondary: 0 0 20px rgba(255, 102, 0, 0.7);
+    --glow-text: 0 0 10px rgba(255, 255, 255, 0.8);
+
+    /* Typography */
+    --font-main: 'Orbitron', monospace;
+
+    /* Spacing */
+    --panel-padding: 15px;
+    --panel-gap: 8px;
+    --border-radius: 8px;
+    --border-radius-sm: 6px;
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--gradient-bg);
+    overflow: hidden;
+    font-family: var(--font-main);
+    color: var(--color-text);
+}
+
+/* ========================================
+   Title
+   ======================================== */
+#title {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-primary);
+    font-size: 24px;
+    font-weight: 900;
+    text-align: center;
+    text-shadow: var(--glow-primary);
+    z-index: 1000;
+    background: var(--color-bg-dark);
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    border: 2px solid var(--color-primary);
+    pointer-events: none;
+}
+
+#title .subtitle {
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* ========================================
+   Panels
+   ======================================== */
+.panel {
+    background: var(--color-bg-dark);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--border-radius);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: var(--panel-padding);
+    z-index: 1000;
+}
+
+.panel-title {
+    color: var(--color-primary);
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px var(--color-primary);
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.btn {
+    font-family: var(--font-main);
+    background: var(--gradient-btn);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    padding: 8px 12px;
+    font-size: 11px;
+    width: 100%;
+}
+
+.btn:hover {
+    background: var(--gradient-btn-hover);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn--active {
+    background: var(--gradient-btn-active) !important;
+    color: var(--color-text) !important;
+    border-color: var(--color-secondary) !important;
+    box-shadow: var(--glow-secondary);
+}
+
+.btn--small {
+    padding: 4px 8px;
+    font-size: 10px;
+}
+
+.btn--half {
+    width: 48%;
+    display: inline-block;
+    margin: 2px 1%;
+}
+
+/* ========================================
+   Referential Panel
+   ======================================== */
+#referential-panel {
+    position: absolute;
+    top: 120px;
+    left: 20px;
+    min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--panel-gap);
+}
+
+/* ========================================
+   Trail Panel
+   ======================================== */
+#trail-panel {
+    position: absolute;
+    top: 120px;
+    right: 20px;
+    min-width: 160px;
+}
+
+/* ========================================
+   Control Panel (Asteroids)
+   ======================================== */
+#control-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#asteroid-counter {
+    color: var(--color-primary);
+    font-size: 11px;
+    text-align: center;
+    padding: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+/* ========================================
+   Voyage Panel (NEW)
+   ======================================== */
+#voyage-panel {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.voyage-info {
+    font-size: 10px;
+    color: var(--color-text-muted);
+    text-align: center;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+.voyage-info--highlight {
+    color: var(--color-primary);
+    font-weight: bold;
+}
+
+/* Speed Slider */
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 10px;
+}
+
+.speed-control label {
+    min-width: 50px;
+}
+
+.speed-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--gradient-btn);
+    border-radius: 2px;
+    outline: none;
+}
+
+.speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: var(--glow-primary);
+}
+
+.speed-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: var(--glow-primary);
+}
+
+.speed-value {
+    min-width: 35px;
+    text-align: right;
+    color: var(--color-primary);
+}
+
+/* ========================================
+   Planet Info Panel
+   ======================================== */
+#planet-info {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    min-width: 250px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    pointer-events: none;
+}
+
+#planet-info.visible {
+    opacity: 1;
+}
+
+#planet-info .planet-name {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--color-primary);
+    text-shadow: var(--glow-primary);
+    margin-bottom: 10px;
+}
+
+#planet-info .planet-stats {
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+#planet-info .stat-label {
+    color: var(--color-text-muted);
+}
+
+#planet-info .stat-value {
+    color: var(--color-primary);
+}
+
+/* ========================================
+   Labels (3D projected)
+   ======================================== */
+.celestial-label {
+    position: absolute;
+    color: var(--color-text);
+    font-family: var(--font-main);
+    font-size: 11px;
+    font-weight: 600;
+    pointer-events: none;
+    text-shadow: var(--glow-text);
+    white-space: nowrap;
+}
+
+.celestial-label--sun {
+    color: var(--color-sun);
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 0 0 15px rgba(255, 255, 0, 0.9);
+}
+
+/* ========================================
+   Loading Screen
+   ======================================== */
+.loading-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    padding: 30px 50px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(0, 255, 255, 0.3);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    margin: 0 auto 15px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 768px) {
+    #title {
+        font-size: 18px;
+        padding: 8px 15px;
+    }
+
+    #title .subtitle {
+        font-size: 12px;
+    }
+
+    .panel {
+        padding: 10px;
+    }
+
+    #referential-panel,
+    #trail-panel {
+        top: 100px;
+    }
+
+    #referential-panel {
+        min-width: 140px;
+    }
+
+    #trail-panel {
+        min-width: 120px;
+    }
+}

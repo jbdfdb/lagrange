@@ -1,19 +1,66 @@
 [project]
 name = "lagrange"
-version = "0.1.0"
-description = ""
+version = "2.0.0"
+description = "Visualisation 3D interactive du Systeme Solaire et de ses Points de Lagrange"
 authors = [
     {name = "J-B de Fromont"}
 ]
 readme = "README.md"
-requires-python = "^3.13"
-dependencies = [
-    "pythreejs (>=2.4.2,<3.0.0)",
-    "ipywidgets (>=8.1.7,<9.0.0)",
-    "flask (>=3.1.1,<4.0.0)"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["solar-system", "3d", "visualization", "three.js", "flask", "astronomy"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: Flask",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Visualization",
 ]
 
+dependencies = [
+    "flask>=3.0.0,<4.0.0",
+    "python-dotenv>=1.0.0,<2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=24.0.0",
+    "ruff>=0.1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/jbdefromont/lagrange"
+Repository = "https://github.com/jbdefromont/lagrange"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{include = "app.py"}, {include = "config.py"}]
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312', 'py313']
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=. --cov-report=term-missing"

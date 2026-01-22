@@ -12,6 +12,7 @@ import { referentialSystem } from './referential.js';
 import { updateAsteroids } from './asteroids.js';
 import { updateVoyage, getVoyageSpeed } from './voyage.js';
 import { initUI, updateLabels, updateAsteroidCounter, hideLoadingScreen } from './ui.js';
+import { updateMissions, updateMissionLabels } from './missions.js';
 
 // ========================================
 // State
@@ -54,8 +55,12 @@ function animate(currentTime) {
     const asteroidCount = updateAsteroids();
     updateAsteroidCounter(asteroidCount);
 
+    // Update missions (trajectories follow planets)
+    updateMissions();
+
     // Update UI labels
     updateLabels();
+    updateMissionLabels();
 
     // Update controls
     controls.update();

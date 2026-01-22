@@ -261,7 +261,7 @@ export const PLANETS = [
 // ========================================
 export const VOYAGE = {
     DEFAULT_SPEED: 1.0,
-    MIN_SPEED: 0.1,
+    MIN_SPEED: 0,        // 0 = pause complete
     MAX_SPEED: 10.0,
     APPROACH_DISTANCE: 100,
     TRANSITION_DURATION: 3000, // ms

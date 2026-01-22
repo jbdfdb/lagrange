@@ -226,7 +226,8 @@ function createVoyagePanel() {
     speedSlider.addEventListener('input', (e) => {
         const speed = parseFloat(e.target.value);
         setVoyageSpeed(speed);
-        speedValueDisplay.textContent = `x${speed.toFixed(1)}`;
+        speedValueDisplay.textContent = speed === 0 ? 'PAUSE' : `x${speed.toFixed(1)}`;
+        speedValueDisplay.style.color = speed === 0 ? '#ff6600' : '#00ffff';
     });
     speedControl.appendChild(speedSlider);
 
@@ -444,17 +445,33 @@ export function showMissionInfo(missionId) {
     if (!mission || !missionInfoPanel) return;
 
     const isActive = mission.status.toLowerCase().includes('active');
+
+    // Caracteristiques
     const chars = mission.characteristics;
     const charsHtml = Object.entries(chars)
         .map(
             ([key, value]) => `
             <div class="char-item">
-                <span class="char-label">${key.charAt(0).toUpperCase() + key.slice(1)}:</span>
+                <span class="char-label">${key.replace(/_/g, ' ')}</span>
                 <span class="char-value">${value}</span>
             </div>
         `
         )
         .join('');
+
+    // Timeline des dates cles
+    const timelineHtml = mission.timeline
+        ? mission.timeline
+              .map(
+                  (event) => `
+            <div class="timeline-event ${event.highlight ? 'highlight' : ''}">
+                <span class="timeline-date">${event.date}</span>
+                <span class="timeline-desc">${event.event}</span>
+            </div>
+        `
+              )
+              .join('')
+        : '';
 
     missionInfoPanel.innerHTML = `
         <button class="mission-info-close" onclick="document.getElementById('mission-info').classList.remove('visible')">&times;</button>
@@ -468,21 +485,19 @@ export function showMissionInfo(missionId) {
         <div class="mission-info-status ${isActive ? '' : 'inactive'}">
             ${mission.status}
         </div>
-        <div class="mission-info-description">
-            ${mission.description}
-        </div>
-        <div class="mission-info-dates">
-            <div>
-                <span class="label">Lancement</span>
-                <span class="value">${mission.launchDate}</span>
+        ${mission.summary ? `<div class="mission-info-summary">${mission.summary}</div>` : ''}
+        ${
+            timelineHtml
+                ? `
+            <div class="mission-info-section-title">Dates cles</div>
+            <div class="mission-timeline">
+                ${timelineHtml}
             </div>
-            <div>
-                <span class="label">Fin de controle</span>
-                <span class="value">${mission.endControl || 'En cours'}</span>
-            </div>
-        </div>
+        `
+                : ''
+        }
+        <div class="mission-info-section-title">Caracteristiques</div>
         <div class="mission-info-chars">
-            <div class="mission-info-chars-title">Caracteristiques</div>
             <div class="mission-info-chars-grid">
                 ${charsHtml}
             </div>

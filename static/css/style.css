@@ -430,20 +430,47 @@ body {
 }
 
 /* ========================================
-   Mission Info Cartouche
+   Mission Info Cartouche - Cyberpunk Style
    ======================================== */
 #mission-info {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    min-width: 320px;
-    max-width: 400px;
+    bottom: 140px;
+    left: 220px;
+    width: 380px;
+    max-height: 70vh;
+    overflow-y: auto;
     opacity: 0;
     pointer-events: none;
-    transition: opacity var(--transition-normal);
-    border: 2px solid var(--color-secondary);
-    box-shadow: 0 0 30px rgba(255, 102, 0, 0.3);
+    transition: all var(--transition-normal);
+    border: 1px solid var(--color-secondary);
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(20, 10, 0, 0.95) 100%);
+    box-shadow:
+        0 0 30px rgba(255, 102, 0, 0.3),
+        inset 0 0 60px rgba(255, 102, 0, 0.05),
+        0 0 1px rgba(255, 102, 0, 0.8);
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+
+#mission-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--color-secondary), transparent);
+}
+
+#mission-info::after {
+    content: 'MISSION DATA';
+    position: absolute;
+    top: -10px;
+    left: 15px;
+    font-size: 8px;
+    color: var(--color-secondary);
+    background: rgba(0, 0, 0, 0.9);
+    padding: 2px 8px;
+    letter-spacing: 2px;
 }
 
 #mission-info.visible {
@@ -451,79 +478,209 @@ body {
     pointer-events: auto;
 }
 
+#mission-info::-webkit-scrollbar {
+    width: 4px;
+}
+
+#mission-info::-webkit-scrollbar-track {
+    background: rgba(255, 102, 0, 0.1);
+}
+
+#mission-info::-webkit-scrollbar-thumb {
+    background: var(--color-secondary);
+    border-radius: 2px;
+}
+
 .mission-info-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
     border-bottom: 1px solid rgba(255, 102, 0, 0.3);
+    position: relative;
 }
 
 .mission-info-title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 900;
     color: var(--color-secondary);
-    text-shadow: var(--glow-secondary);
+    text-shadow:
+        0 0 10px rgba(255, 102, 0, 0.8),
+        0 0 20px rgba(255, 102, 0, 0.4);
+    letter-spacing: 1px;
 }
 
 .mission-info-agency {
-    font-size: 10px;
-    color: var(--color-text-muted);
+    font-size: 11px;
+    color: var(--color-primary);
     margin-top: 4px;
+    letter-spacing: 1px;
 }
 
 .mission-info-type {
-    font-size: 9px;
-    padding: 3px 8px;
-    background: rgba(255, 102, 0, 0.2);
+    font-size: 8px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, rgba(255, 102, 0, 0.3), rgba(255, 102, 0, 0.1));
     border: 1px solid var(--color-secondary);
-    border-radius: 10px;
     color: var(--color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
 }
 
 .mission-info-status {
-    font-size: 10px;
-    padding: 5px 10px;
-    background: rgba(0, 255, 136, 0.1);
+    font-size: 11px;
+    padding: 8px 12px;
+    background: linear-gradient(90deg, rgba(0, 255, 136, 0.15), transparent);
     border-left: 3px solid #00ff88;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
     color: #00ff88;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
 }
 
 .mission-info-status.inactive {
-    background: rgba(255, 100, 100, 0.1);
+    background: linear-gradient(90deg, rgba(255, 100, 100, 0.15), transparent);
     border-left-color: #ff6464;
     color: #ff6464;
+    text-shadow: 0 0 10px rgba(255, 100, 100, 0.5);
 }
 
-.mission-info-description {
+.mission-info-summary {
     font-size: 11px;
-    line-height: 1.5;
+    line-height: 1.6;
     color: var(--color-text);
-    margin-bottom: 12px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(0, 255, 255, 0.03);
+    border-left: 2px solid rgba(0, 255, 255, 0.3);
 }
 
-.mission-info-dates {
+.mission-info-section-title {
+    font-size: 9px;
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
     display: flex;
-    gap: 15px;
-    margin-bottom: 12px;
+    align-items: center;
+    gap: 8px;
+}
+
+.mission-info-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255, 102, 0, 0.5), transparent);
+}
+
+/* Timeline des dates cles */
+.mission-timeline {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 15px;
+}
+
+.mission-timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--color-secondary), var(--color-primary), transparent);
+}
+
+.timeline-event {
+    position: relative;
+    padding: 8px 0 8px 15px;
     font-size: 10px;
 }
 
-.mission-info-dates div {
-    flex: 1;
+.timeline-event::before {
+    content: '';
+    position: absolute;
+    left: -17px;
+    top: 12px;
+    width: 8px;
+    height: 8px;
+    background: var(--color-secondary);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--color-secondary);
 }
 
-.mission-info-dates .label {
+.timeline-event.highlight::before {
+    background: #00ff88;
+    box-shadow: 0 0 10px #00ff88;
+}
+
+.timeline-date {
+    color: var(--color-primary);
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+.timeline-desc {
+    color: var(--color-text);
+}
+
+/* Caracteristiques */
+.mission-info-chars {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 12px;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    margin-bottom: 10px;
+}
+
+.mission-info-chars-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.char-item {
+    display: flex;
+    flex-direction: column;
+    padding: 6px;
+    background: rgba(0, 255, 255, 0.03);
+}
+
+.char-label {
+    font-size: 8px;
     color: var(--color-text-muted);
-    display: block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin-bottom: 2px;
 }
 
-.mission-info-dates .value {
+.char-value {
+    font-size: 11px;
     color: var(--color-primary);
     font-weight: bold;
+}
+
+/* Bouton fermer */
+.mission-info-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    transition: all var(--transition-fast);
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+.mission-info-close:hover {
+    border-color: var(--color-secondary);
+    color: var(--color-secondary);
+    box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
 }
 
 .mission-info-chars {

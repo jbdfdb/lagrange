@@ -9,10 +9,6 @@
 export const AU_VISUAL = 200; // 1 Unite Astronomique = 200 unites Three.js
 
 export const PHYSICS = {
-    GRAVITY_STRENGTH: 0.001,
-    MAX_ASTEROID_VELOCITY: 10,
-    SUN_GRAVITY_MULTIPLIER: 50,
-    PLANET_GRAVITY_MULTIPLIER: 0.1,
     MIN_DISTANCE_THRESHOLD: 5,
     ASTEROID_BOUNDARY: 20000,
     ASTEROID_DESTRUCTION_RADIUS: 15,
@@ -57,14 +53,10 @@ export const STARS = {
 export const ASTEROIDS = {
     SPAWN_INTERVAL: 3000,
     INITIAL_SPAWN_COUNT: 2,
-    MIN_DISTANCE_MULTIPLIER: 6,
-    MAX_DISTANCE_MULTIPLIER: 10,
     Y_SPREAD: 100,
     MIN_SIZE: 0.5,
     MAX_SIZE: 2,
-    MIN_SPEED: 1,
-    MAX_SPEED: 3,
-    TRAIL_MAX_POINTS_MULTIPLIER: 60, // points per second
+    TRAIL_MAX_POINTS_MULTIPLIER: 60,
 };
 
 // ========================================

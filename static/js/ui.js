@@ -474,7 +474,7 @@ export function showMissionInfo(missionId) {
         : '';
 
     missionInfoPanel.innerHTML = `
-        <button class="mission-info-close" onclick="document.getElementById('mission-info').classList.remove('visible')">&times;</button>
+        <button class="mission-info-close">&times;</button>
         <div class="mission-info-header">
             <div>
                 <div class="mission-info-title">${mission.name}</div>
@@ -505,6 +505,14 @@ export function showMissionInfo(missionId) {
     `;
 
     missionInfoPanel.classList.add('visible');
+
+    // Attacher l'event listener au bouton fermer
+    const closeBtn = missionInfoPanel.querySelector('.mission-info-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            missionInfoPanel.classList.remove('visible');
+        });
+    }
 }
 
 export function hideMissionInfo() {

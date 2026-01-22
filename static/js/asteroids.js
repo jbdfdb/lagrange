@@ -110,14 +110,37 @@ export function addDynamicAsteroid() {
     const asteroid = new THREE.Mesh(geometry, material);
     asteroid.position.set(x, y, z);
 
-    // Vitesse initiale vers le centre
+    // Vitesse initiale avec parametre d'impact aleatoire
     const speed = Math.random() * (ASTEROIDS.MAX_SPEED - ASTEROIDS.MIN_SPEED) + ASTEROIDS.MIN_SPEED;
+
+    // Direction vers le centre
     const dirToCenter = new THREE.Vector3()
         .subVectors(new THREE.Vector3(0, 0, 0), asteroid.position)
         .normalize();
 
+    // Creer un vecteur perpendiculaire pour le parametre d'impact
+    // On utilise le produit vectoriel avec un vecteur vertical
+    const up = new THREE.Vector3(0, 1, 0);
+    const perpendicular = new THREE.Vector3().crossVectors(dirToCenter, up).normalize();
+
+    // Si le vecteur est presque vertical, utiliser un autre axe
+    if (perpendicular.length() < 0.1) {
+        perpendicular.crossVectors(dirToCenter, new THREE.Vector3(1, 0, 0)).normalize();
+    }
+
+    // Parametre d'impact: entre 0 et le rayon max du systeme solaire (Neptune)
+    // Valeur aleatoire avec distribution qui favorise les trajectoires interessantes
+    const maxImpactParam = 30.1 * AU_VISUAL; // Distance de Neptune
+    const impactParam = (Math.random() - 0.5) * 2 * maxImpactParam * 0.3; // +-30% du max
+
+    // Ajouter une composante perpendiculaire a la vitesse
+    // Plus le parametre d'impact est grand, plus la deviation est importante
+    const velocityDirection = dirToCenter.clone();
+    velocityDirection.add(perpendicular.multiplyScalar(impactParam / distance));
+    velocityDirection.normalize();
+
     asteroid.userData = {
-        velocity: dirToCenter.multiplyScalar(speed),
+        velocity: velocityDirection.multiplyScalar(speed),
         isAsteroid: true,
         mass: size * size * 0.01,
     };

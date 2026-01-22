@@ -1,11 +1,23 @@
 /**
- * Systeme d'Asteroides avec gravite et trainees
+ * Systeme d'Asteroides avec physique Keplerienne
+ * Utilise l'integration Velocity Verlet pour des orbites realistes
  */
 
 import * as THREE from 'https://esm.sh/three@0.153.0';
 import { scene } from './scene.js';
 import { sun, planetObjects } from './celestial.js';
 import { AU_VISUAL, ASTEROIDS, PHYSICS, TRAILS, GEOMETRY } from './config.js';
+
+// ========================================
+// Constants for Kepler Physics
+// ========================================
+// Constante gravitationnelle calibree pour que les orbites soient visibles
+// GM du Soleil en unites visuelles
+const GM_SUN = 800000;
+// Facteur pour les planetes (relatif a leur masse)
+const GM_PLANET_FACTOR = 50;
+// Pas de temps pour l'integration (plus petit = plus precis)
+const DT = 0.016; // ~60fps
 
 // ========================================
 // Storage
@@ -52,50 +64,58 @@ class AsteroidTrail {
 }
 
 // ========================================
-// Gravity Calculation
+// Compute Gravitational Acceleration
 // ========================================
-function applyGravity(asteroid) {
-    const totalForce = new THREE.Vector3(0, 0, 0);
+function computeAcceleration(position) {
+    const acceleration = new THREE.Vector3(0, 0, 0);
 
-    // Force du Soleil
-    const dirSun = new THREE.Vector3().subVectors(sun.position, asteroid.position);
-    const distSun = dirSun.length();
+    // Acceleration due au Soleil (loi de Newton: a = -GM/r² * r_hat)
+    const rSun = new THREE.Vector3().subVectors(position, sun.position);
+    const distSun = rSun.length();
+
     if (distSun > PHYSICS.MIN_DISTANCE_THRESHOLD) {
-        const forceSun = dirSun
-            .normalize()
-            .multiplyScalar(PHYSICS.SUN_GRAVITY_MULTIPLIER / (distSun * distSun));
-        totalForce.add(forceSun);
+        // a = -GM/r³ * r (forme vectorielle)
+        const accSun = rSun.clone().multiplyScalar(-GM_SUN / (distSun * distSun * distSun));
+        acceleration.add(accSun);
     }
 
-    // Forces des planetes
+    // Acceleration due aux planetes
     planetObjects.forEach((planet) => {
-        const dir = new THREE.Vector3().subVectors(planet.position, asteroid.position);
-        const dist = dir.length();
+        const rPlanet = new THREE.Vector3().subVectors(position, planet.position);
+        const dist = rPlanet.length();
+
         if (dist > PHYSICS.MIN_DISTANCE_THRESHOLD) {
-            const force = dir
-                .normalize()
-                .multiplyScalar(
-                    (planet.userData.mass * PHYSICS.PLANET_GRAVITY_MULTIPLIER) / (dist * dist)
-                );
-            totalForce.add(force);
+            const gmPlanet = planet.userData.mass * GM_PLANET_FACTOR;
+            const accPlanet = rPlanet.clone().multiplyScalar(-gmPlanet / (dist * dist * dist));
+            acceleration.add(accPlanet);
         }
     });
 
-    return totalForce;
+    return acceleration;
 }
 
 // ========================================
-// Create Asteroid
+// Calculate Orbital Velocity for Circular Orbit
+// ========================================
+function getOrbitalVelocity(position, centralMass) {
+    // v = sqrt(GM/r) pour une orbite circulaire
+    const r = position.length();
+    return Math.sqrt(centralMass / r);
+}
+
+// ========================================
+// Create Asteroid with Kepler-compatible initial conditions
 // ========================================
 export function addDynamicAsteroid() {
-    // Position initiale dans la ceinture d'asteroides
-    const distance =
-        ASTEROIDS.MIN_DISTANCE_MULTIPLIER * AU_VISUAL +
-        Math.random() * (ASTEROIDS.MAX_DISTANCE_MULTIPLIER - ASTEROIDS.MIN_DISTANCE_MULTIPLIER) * AU_VISUAL;
+    // Position initiale: entre la ceinture d'asteroides et au-dela de Neptune
+    const minDist = 2.5 * AU_VISUAL;  // Un peu avant Jupiter
+    const maxDist = 35 * AU_VISUAL;   // Au-dela de Neptune
+    const distance = minDist + Math.random() * (maxDist - minDist);
+
     const angle = Math.random() * Math.PI * 2;
     const x = Math.cos(angle) * distance;
     const z = Math.sin(angle) * distance;
-    const y = (Math.random() - 0.5) * ASTEROIDS.Y_SPREAD;
+    const y = (Math.random() - 0.5) * ASTEROIDS.Y_SPREAD * 2;
 
     // Taille aleatoire
     const size = Math.random() * (ASTEROIDS.MAX_SIZE - ASTEROIDS.MIN_SIZE) + ASTEROIDS.MIN_SIZE;
@@ -110,40 +130,56 @@ export function addDynamicAsteroid() {
     const asteroid = new THREE.Mesh(geometry, material);
     asteroid.position.set(x, y, z);
 
-    // Vitesse initiale avec parametre d'impact aleatoire
-    const speed = Math.random() * (ASTEROIDS.MAX_SPEED - ASTEROIDS.MIN_SPEED) + ASTEROIDS.MIN_SPEED;
+    // Calculer la vitesse orbitale circulaire a cette distance
+    const vCircular = getOrbitalVelocity(asteroid.position, GM_SUN);
 
-    // Direction vers le centre
-    const dirToCenter = new THREE.Vector3()
-        .subVectors(new THREE.Vector3(0, 0, 0), asteroid.position)
-        .normalize();
+    // Direction tangentielle (perpendiculaire au rayon, dans le plan XZ)
+    const radialDir = new THREE.Vector3(x, 0, z).normalize();
+    const tangentDir = new THREE.Vector3(-radialDir.z, 0, radialDir.x);
 
-    // Creer un vecteur perpendiculaire pour le parametre d'impact
-    // On utilise le produit vectoriel avec un vecteur vertical
-    const up = new THREE.Vector3(0, 1, 0);
-    const perpendicular = new THREE.Vector3().crossVectors(dirToCenter, up).normalize();
+    // Facteur de vitesse aleatoire:
+    // < 1: orbite elliptique (perihelie a la position actuelle)
+    // = 1: orbite circulaire
+    // > 1 et < sqrt(2): orbite elliptique (aphelie a la position actuelle)
+    // >= sqrt(2): orbite hyperbolique (s'echappe du systeme)
 
-    // Si le vecteur est presque vertical, utiliser un autre axe
-    if (perpendicular.length() < 0.1) {
-        perpendicular.crossVectors(dirToCenter, new THREE.Vector3(1, 0, 0)).normalize();
+    // Distribution qui donne des orbites variees
+    const orbitType = Math.random();
+    let velocityFactor;
+
+    if (orbitType < 0.3) {
+        // Orbites elliptiques internes (plongent vers le Soleil)
+        velocityFactor = 0.3 + Math.random() * 0.5; // 0.3 - 0.8
+    } else if (orbitType < 0.6) {
+        // Orbites quasi-circulaires
+        velocityFactor = 0.85 + Math.random() * 0.3; // 0.85 - 1.15
+    } else if (orbitType < 0.85) {
+        // Orbites elliptiques externes
+        velocityFactor = 1.1 + Math.random() * 0.3; // 1.1 - 1.4
+    } else {
+        // Orbites hyperboliques (s'echappent ou viennent de l'infini)
+        velocityFactor = 1.42 + Math.random() * 0.3; // > sqrt(2)
     }
 
-    // Parametre d'impact: entre 0 et le rayon max du systeme solaire (Neptune)
-    // Valeur aleatoire avec distribution qui favorise les trajectoires interessantes
-    const maxImpactParam = 30.1 * AU_VISUAL; // Distance de Neptune
-    const impactParam = (Math.random() - 0.5) * 2 * maxImpactParam * 0.3; // +-30% du max
+    // Ajouter une composante aleatoire a l'inclinaison de la vitesse
+    const inclination = (Math.random() - 0.5) * 0.3; // +-15 degres
+    const velocityY = vCircular * velocityFactor * inclination;
 
-    // Ajouter une composante perpendiculaire a la vitesse
-    // Plus le parametre d'impact est grand, plus la deviation est importante
-    const velocityDirection = dirToCenter.clone();
-    velocityDirection.add(perpendicular.multiplyScalar(impactParam / distance));
-    velocityDirection.normalize();
+    // Direction de l'orbite (prograde ou retrograde)
+    const direction = Math.random() > 0.1 ? 1 : -1; // 90% prograde
+
+    const velocity = tangentDir.multiplyScalar(vCircular * velocityFactor * direction);
+    velocity.y = velocityY;
 
     asteroid.userData = {
-        velocity: velocityDirection.multiplyScalar(speed),
+        velocity: velocity,
+        acceleration: new THREE.Vector3(0, 0, 0),
         isAsteroid: true,
         mass: size * size * 0.01,
     };
+
+    // Calculer l'acceleration initiale
+    asteroid.userData.acceleration = computeAcceleration(asteroid.position);
 
     scene.add(asteroid);
     dynamicAsteroids.push(asteroid);
@@ -153,23 +189,28 @@ export function addDynamicAsteroid() {
 }
 
 // ========================================
-// Update Asteroids
+// Update Asteroids using Velocity Verlet
 // ========================================
 export function updateAsteroids() {
     for (let i = dynamicAsteroids.length - 1; i >= 0; i--) {
         const asteroid = dynamicAsteroids[i];
+        const data = asteroid.userData;
 
-        // Appliquer la gravite
-        const gravityForce = applyGravity(asteroid);
-        asteroid.userData.velocity.add(gravityForce.multiplyScalar(PHYSICS.GRAVITY_STRENGTH));
+        // Velocity Verlet Integration:
+        // 1. x(t+dt) = x(t) + v(t)*dt + 0.5*a(t)*dt²
+        const halfAccDtSq = data.acceleration.clone().multiplyScalar(0.5 * DT * DT);
+        const velDt = data.velocity.clone().multiplyScalar(DT);
+        asteroid.position.add(velDt).add(halfAccDtSq);
 
-        // Limiter la vitesse maximale
-        if (asteroid.userData.velocity.length() > PHYSICS.MAX_ASTEROID_VELOCITY) {
-            asteroid.userData.velocity.normalize().multiplyScalar(PHYSICS.MAX_ASTEROID_VELOCITY);
-        }
+        // 2. Calculer a(t+dt) a la nouvelle position
+        const newAcceleration = computeAcceleration(asteroid.position);
 
-        // Mettre a jour la position
-        asteroid.position.add(asteroid.userData.velocity.clone().multiplyScalar(0.1));
+        // 3. v(t+dt) = v(t) + 0.5*(a(t) + a(t+dt))*dt
+        const avgAcceleration = data.acceleration.clone().add(newAcceleration).multiplyScalar(0.5);
+        data.velocity.add(avgAcceleration.multiplyScalar(DT));
+
+        // 4. Stocker la nouvelle acceleration pour le prochain pas
+        data.acceleration.copy(newAcceleration);
 
         // Mettre a jour la trainee
         if (trailPoints.has(asteroid)) {

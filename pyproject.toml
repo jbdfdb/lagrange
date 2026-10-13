@@ -8,8 +8,6 @@ authors = [
 readme = "README.md"
 requires-python = "^3.13"
 dependencies = [
-    "pythreejs (>=2.4.2,<3.0.0)",
-    "ipywidgets (>=8.1.7,<9.0.0)",
     "flask (>=3.1.1,<4.0.0)"
 ]
 

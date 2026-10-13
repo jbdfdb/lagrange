@@ -5,7 +5,7 @@ import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from './vendor/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from './vendor/jsm/postprocessing/OutputPass.js';
 import { PLANETS, AU_VISUAL, SUN_MASS, REFERENTIAL_CAPTIONS, PLANET_INFO, LAGRANGE_INFO } from './js/data.js';
-import { randomSpawnState, SPAWN } from './js/asteroids.js';
+import { randomSpawnState, trojanCandidateSpawn, stepAsteroid, planetGM, GM_SUN, SPAWN } from './js/asteroids.js';
 import { planetPosition, lagrangePosition, makeDateAt } from './js/physics.js';
 import {
   createSun, createPlanetMesh, createSaturnRings, createOrbitLine,
@@ -200,12 +200,26 @@ class Trail {
   }
 }
 
+function trojanSpawnState() {
+  const jupiterIndex = PLANETS.findIndex(p => p.name === 'Jupiter');
+  const jupiter = PLANETS[jupiterIndex];
+  const helio = planetMeshes[jupiterIndex].userData.helioPos;
+  const which = Math.random() < 0.5 ? 'L4' : 'L5';
+  return trojanCandidateSpawn(helio || planetPosition(jupiter, referential.simDays), which);
+}
+
 function addDynamicAsteroid() {
-  const state = randomSpawnState({ auPerUnit: AU_VISUAL });
+  const isTrojanCandidate = Math.random() < SPAWN.trojanFraction;
+  const state = isTrojanCandidate
+    ? trojanSpawnState()
+    : randomSpawnState({ auPerUnit: AU_VISUAL });
   const size = Math.random() * 1.5 + 0.5;
   const asteroid = new THREE.Mesh(
     new THREE.SphereGeometry(size, 12, 12),
-    new THREE.MeshLambertMaterial({ color: 0xFFFFFF, emissive: 0x222222 }),
+    new THREE.MeshLambertMaterial({
+      color: isTrojanCandidate ? 0xFFAA44 : 0xFFFFFF,
+      emissive: isTrojanCandidate ? 0x442200 : 0x222222,
+    }),
   );
   asteroid.position.set(
     sun.position.x + state.offset.x,
@@ -215,25 +229,24 @@ function addDynamicAsteroid() {
   asteroid.userData = {
     velocity: new THREE.Vector3(state.velocity.x, state.velocity.y, state.velocity.z),
     isAsteroid: true,
+    trojanCandidate: isTrojanCandidate,
   };
   scene.add(asteroid);
   dynamicAsteroids.push(asteroid);
   trails.set(asteroid, new Trail());
 }
 
-function applyGravity(asteroid) {
-  const totalForce = new THREE.Vector3();
-  const dirSun = new THREE.Vector3().subVectors(sun.position, asteroid.position);
-  const distSun = dirSun.length();
-  if (distSun > 5) totalForce.add(dirSun.normalize().multiplyScalar(50 / (distSun * distSun)));
-  planetMeshes.forEach(planet => {
-    const dir = new THREE.Vector3().subVectors(planet.position, asteroid.position);
-    const dist = dir.length();
-    if (dist > 5) {
-      totalForce.add(dir.normalize().multiplyScalar(planet.userData.mass * 0.1 / (dist * dist)));
-    }
+function gravityBodies() {
+  const bodies = [{ x: sun.position.x, y: sun.position.y, z: sun.position.z, gm: GM_SUN }];
+  planetMeshes.forEach((planet, i) => {
+    bodies.push({
+      x: planet.position.x,
+      y: planet.position.y,
+      z: planet.position.z,
+      gm: planetGM(PLANETS[i].mass),
+    });
   });
-  return totalForce;
+  return bodies;
 }
 
 let asteroidRainActive = false;
@@ -371,12 +384,27 @@ function animate(now) {
 
   for (let i = dynamicAsteroids.length - 1; i >= 0; i--) {
     const asteroid = dynamicAsteroids[i];
-    const gravityForce = applyGravity(asteroid);
-    asteroid.userData.velocity.add(gravityForce.multiplyScalar(deltaTime));
-    if (asteroid.userData.velocity.length() > 10) {
-      asteroid.userData.velocity.setLength(10);
+    const simDaysStep = deltaTime * SIM_START_DAYS_PER_SECOND * referential.speed;
+    const bodies = gravityBodies();
+    const hMax = 2;
+    const subSteps = Math.max(1, Math.min(40, Math.ceil(simDaysStep / hMax)));
+    const h = simDaysStep / subSteps;
+    for (let s = 0; s < subSteps; s++) {
+      const acc = stepAsteroid(
+        { x: asteroid.position.x, y: asteroid.position.y, z: asteroid.position.z },
+        h,
+        bodies,
+      );
+      asteroid.userData.velocity.x += acc.ax * h;
+      asteroid.userData.velocity.y += acc.ay * h;
+      asteroid.userData.velocity.z += acc.az * h;
+      if (asteroid.userData.velocity.length() > SPAWN.maxSpeedCap) {
+        asteroid.userData.velocity.setLength(SPAWN.maxSpeedCap);
+      }
+      asteroid.position.x += asteroid.userData.velocity.x * h;
+      asteroid.position.y += asteroid.userData.velocity.y * h;
+      asteroid.position.z += asteroid.userData.velocity.z * h;
     }
-    asteroid.position.add(asteroid.userData.velocity.clone().multiplyScalar(0.1));
     trails.get(asteroid)?.push(asteroid.position);
     const distanceFromSun = asteroid.position.distanceTo(sun.position);
     const killDistance = SPAWN.killDistanceAU * AU_VISUAL;

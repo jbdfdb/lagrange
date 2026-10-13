@@ -5,6 +5,7 @@ import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from './vendor/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from './vendor/jsm/postprocessing/OutputPass.js';
 import { PLANETS, AU_VISUAL, SUN_MASS, REFERENTIAL_CAPTIONS, PLANET_INFO, LAGRANGE_INFO } from './js/data.js';
+import { randomSpawnState, SPAWN } from './js/asteroids.js';
 import { planetPosition, lagrangePosition, makeDateAt } from './js/physics.js';
 import {
   createSun, createPlanetMesh, createSaturnRings, createOrbitLine,
@@ -200,21 +201,21 @@ class Trail {
 }
 
 function addDynamicAsteroid() {
-  const distance = 6 * AU_VISUAL + Math.random() * 4 * AU_VISUAL;
-  const angle = Math.random() * Math.PI * 2;
+  const state = randomSpawnState({ auPerUnit: AU_VISUAL });
   const size = Math.random() * 1.5 + 0.5;
   const asteroid = new THREE.Mesh(
     new THREE.SphereGeometry(size, 12, 12),
     new THREE.MeshLambertMaterial({ color: 0xFFFFFF, emissive: 0x222222 }),
   );
   asteroid.position.set(
-    Math.cos(angle) * distance,
-    (Math.random() - 0.5) * 100,
-    Math.sin(angle) * distance,
+    sun.position.x + state.offset.x,
+    sun.position.y + state.offset.y,
+    sun.position.z + state.offset.z,
   );
-  const speed = Math.random() * 2 + 1;
-  const dirToCenter = asteroid.position.clone().negate().normalize();
-  asteroid.userData = { velocity: dirToCenter.multiplyScalar(speed), isAsteroid: true };
+  asteroid.userData = {
+    velocity: new THREE.Vector3(state.velocity.x, state.velocity.y, state.velocity.z),
+    isAsteroid: true,
+  };
   scene.add(asteroid);
   dynamicAsteroids.push(asteroid);
   trails.set(asteroid, new Trail());
@@ -236,17 +237,26 @@ function applyGravity(asteroid) {
 }
 
 let asteroidRainActive = false;
-let asteroidRainInterval = null;
+let asteroidRainTimeout = null;
+
+function scheduleNextAsteroid() {
+  const delay = SPAWN.minIntervalMs + Math.random() * (SPAWN.maxIntervalMs - SPAWN.minIntervalMs);
+  asteroidRainTimeout = setTimeout(() => {
+    addDynamicAsteroid();
+    if (asteroidRainActive) scheduleNextAsteroid();
+  }, delay);
+}
 
 function toggleAsteroidRain() {
   const btn = document.getElementById('rain-btn');
   asteroidRainActive = !asteroidRainActive;
   if (asteroidRainActive) {
     for (let i = 0; i < 2; i++) addDynamicAsteroid();
-    asteroidRainInterval = setInterval(addDynamicAsteroid, 3000);
+    scheduleNextAsteroid();
     btn.textContent = '⏹️ Arrêter la pluie';
   } else {
-    clearInterval(asteroidRainInterval);
+    if (asteroidRainTimeout) clearTimeout(asteroidRainTimeout);
+    asteroidRainTimeout = null;
     btn.textContent = '☄️ Pluie d\'astéroïdes';
   }
   btn.classList.toggle('active', asteroidRainActive);
@@ -368,8 +378,9 @@ function animate(now) {
     }
     asteroid.position.add(asteroid.userData.velocity.clone().multiplyScalar(0.1));
     trails.get(asteroid)?.push(asteroid.position);
-    const distanceFromCenter = asteroid.position.length();
-    if (distanceFromCenter < 15 || distanceFromCenter > 20000) {
+    const distanceFromSun = asteroid.position.distanceTo(sun.position);
+    const killDistance = SPAWN.killDistanceAU * AU_VISUAL;
+    if (distanceFromSun < SPAWN.killRadius || distanceFromSun > killDistance) {
       asteroid.geometry.dispose();
       asteroid.material.dispose();
       scene.remove(asteroid);

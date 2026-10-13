@@ -169,12 +169,12 @@ export function createTrojans(p, count = 120) {
   return points;
 }
 
-export function updateTrojans(points, planetMesh, tDays, which) {
+export function updateTrojans(points, planetHelioPos, tDays, which) {
   const seeds = points.userData.seeds;
   const attr = points.geometry.attributes.position;
   for (let i = 0; i < seeds.length; i++) {
     const s = seeds[i];
-    const base = lagrangePosition(planetMesh.userData.helioPos || { x: 0, y: 0, z: 0 }, which);
+    const base = lagrangePosition(planetHelioPos, which);
     const theta = Math.atan2(base.z, base.x) + s.angleOffset + Math.sin(tDays * s.wobble * 10 + s.phase) * 0.08;
     const r = Math.hypot(base.x, base.z) * s.radialFactor;
     attr.setXYZ(i, Math.cos(theta) * r, base.y + Math.sin(tDays * s.wobble * 6 + s.phase) * 6, Math.sin(theta) * r);

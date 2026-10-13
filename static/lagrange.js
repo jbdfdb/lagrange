@@ -4,7 +4,7 @@ import { EffectComposer } from './vendor/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from './vendor/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from './vendor/jsm/postprocessing/OutputPass.js';
-import { PLANETS, AU_VISUAL, SUN_MASS, REFERENTIAL_CAPTIONS, PLANET_INFO, LAGRANGE_INFO } from './js/data.js';
+import { PLANETS, AU_VISUAL, REFERENTIAL_CAPTIONS, PLANET_INFO, LAGRANGE_INFO } from './js/data.js';
 import { randomSpawnState, trojanCandidateSpawn, stepAsteroid, planetGM, GM_SUN, SPAWN } from './js/asteroids.js';
 import { planetPosition, lagrangePosition, makeDateAt } from './js/physics.js';
 import {
@@ -14,7 +14,6 @@ import {
 import { Labels, buildReferentialButtons, buildTrailButtons, showReferentialCaption, showInfoCard, hideInfoCard } from './js/ui.js';
 
 const SIM_START_DAYS_PER_SECOND = 3;
-const DAY_MS_AT_1X = 365.25 / SIM_START_DAYS_PER_SECOND;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000011);
@@ -131,8 +130,8 @@ function updateWorld(positions) {
     mesh.userData.helioPos = positions[p.name];
   });
 
-  orbitLines.forEach((line, i) => {
-    line.position.copy(positions.Soleil).sub(center).negate().negate();
+  orbitLines.forEach(line => {
+    line.position.copy(positions.Soleil).sub(center);
   });
 
   PLANETS.forEach(p => {
@@ -146,21 +145,9 @@ function updateWorld(positions) {
   });
 
   trojanGroups.forEach(({ points, planetName, which }) => {
-    const mesh = planetMeshes[PLANETS.findIndex(p => p.name === planetName)];
-    updateTrojans(points, mesh, referential.simDays, which);
-    const centerNow = positions[planetName];
-    const lp = lagrangePosition(centerNow, which);
+    updateTrojans(points, positions[planetName], referential.simDays, which);
+    const lp = lagrangePosition(positions[planetName], which);
     points.position.set(lp.x - center.x, lp.y - center.y, lp.z - center.z);
-    points.userData.seeds.forEach(() => {});
-    const attr = points.geometry.attributes.position;
-    for (let i = 0; i < attr.count; i++) {
-      attr.setXYZ(
-        i,
-        attr.getX(i) - 0,
-        attr.getY(i),
-        attr.getZ(i),
-      );
-    }
   });
 }
 

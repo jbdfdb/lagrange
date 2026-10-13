@@ -1,5 +1,4 @@
 export const AU_VISUAL = 200;
-export const SUN_MASS = 332946;
 
 export const PLANETS = [
   {

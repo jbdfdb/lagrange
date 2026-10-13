@@ -3,8 +3,7 @@ import { lagrangePosition } from './physics.js';
 
 const JUPITER = PLANETS.find(p => p.name === 'Jupiter');
 
-export const TIME_SCALE = 1;
-export const GM_SUN = Math.pow(JUPITER.a * AU_VISUAL, 3) * Math.pow(2 * Math.PI / JUPITER.period, 2) / Math.pow(TIME_SCALE, 2);
+export const GM_SUN = Math.pow(JUPITER.a * AU_VISUAL, 3) * Math.pow(2 * Math.PI / JUPITER.period, 2);
 export const SUN_MASS_EARTHS = 333000;
 
 export function planetGM(massEarths) {

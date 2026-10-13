@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Système Solaire et ses Points de Lagrange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&display=swap">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div id="title">
+    🌌 LE SYSTÈME SOLAIRE<br>
+    <span>et ses Points de Lagrange</span>
+  </div>
+
+  <div id="referential-panel" class="panel">
+    <div class="panel-title">🎯 RÉFÉRENTIEL</div>
+    <div id="referential-buttons"></div>
+    <div id="ref-caption" class="caption"></div>
+  </div>
+
+  <div id="trail-panel" class="panel">
+    <div class="panel-title">⭐ TRAÎNÉES</div>
+    <div id="trail-buttons"></div>
+  </div>
+
+  <div id="control-panel" class="panel">
+    <button id="rain-btn" class="action-btn">☄️ Pluie d'astéroïdes</button>
+    <div id="asteroid-counter" class="counter">Astéroïdes: 0</div>
+    <div id="time-controls">
+      <label for="speed-slider">Vitesse: <span id="speed-value">1×</span></label>
+      <input type="range" id="speed-slider" min="0" max="4" step="0.5" value="1">
+    </div>
+    <div id="sim-date" class="counter"></div>
+  </div>
+
+  <div id="info-card" class="panel hidden">
+    <button id="info-close" class="close-btn">×</button>
+    <h2 id="info-title"></h2>
+    <div id="info-body"></div>
+  </div>
+
+  <div id="loading">
+    <div class="loading-box">
+      <div class="loading-title">🌌 LAGRANGE</div>
+      <div class="loading-sub">Système solaire interactif</div>
+      <button id="start-btn" class="action-btn launch">🚀 LANCER LA SIMULATION</button>
+    </div>
+  </div>
+
+  <script type="module" src="/static/lagrange.js"></script>
+</body>
+</html>

@@ -54,7 +54,7 @@ scene.add(new THREE.AmbientLight(0x112244, 0.3));
 const labels = new Labels();
 const sun = createSun();
 scene.add(sun);
-labels.add(sun, 'Soleil', 'sun');
+labels.add(sun, 'Soleil', 'sun', 30);
 
 const planetMeshes = [];
 const orbitLines = [];
@@ -65,7 +65,7 @@ PLANETS.forEach(p => {
   const mesh = createPlanetMesh(p);
   scene.add(mesh);
   planetMeshes.push(mesh);
-  labels.add(mesh, p.name);
+  labels.add(mesh, p.name, '', p.radius);
 
   const orbit = createOrbitLine(p);
   scene.add(orbit);

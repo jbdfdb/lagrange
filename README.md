@@ -65,7 +65,8 @@ pytest tests/                  # serveur : routes, headers sécurité, modules s
 ## 🎮 Prise en main
 
 - **Clic** sur un astre ou un point de Lagrange → fiche + focus caméra
-- **1–9** : changer de référentiel · **Espace** : pause · **Échap** : fermer la fiche
+- **1–9** : référentiels (1=Soleil, 2=Mercure, 3=Vénus, 4=Terre, 5=Mars, 6=Jupiter, 7=Saturne, 8=Uranus, 9=Neptune) · **Espace** : pause · **Échap** : fermer la fiche
+- Les étiquettes se placent sous chaque astre, à une distance qui suit le zoom (jamais superposées au disque ni au halo)
 - **Slider de vitesse** : de pause figée à 4× (≈ 3 jours simulés par seconde à 1×)
 
 ## 🧭 Idées pour la suite

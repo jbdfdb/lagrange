@@ -4,28 +4,38 @@ import { PLANETS, TRAIL_DURATIONS } from './data.js';
 export class Labels {
   constructor() {
     this.items = [];
+    this.MARGIN_PX = 12;
   }
 
-  add(object, text, className = '') {
+  add(object, text, className = '', worldRadius = 1) {
     const div = document.createElement('div');
     div.textContent = text;
     div.className = `label ${className}`;
     document.body.appendChild(div);
-    this.items.push({ div, object });
+    this.items.push({ div, object, worldRadius });
     return div;
   }
 
   update(camera) {
     const v = new THREE.Vector3();
+    const world = new THREE.Vector3();
+    const tanHalfFov = Math.tan((camera.fov * Math.PI / 180) / 2);
     for (const label of this.items) {
-      v.copy(label.object.getWorldPosition(new THREE.Vector3())).project(camera);
+      label.object.getWorldPosition(world);
+      v.copy(world).project(camera);
       if (v.z > 1) {
         label.div.style.display = 'none';
         continue;
       }
+      const screenX = (v.x * 0.5 + 0.5) * window.innerWidth;
+      const screenY = (-v.y * 0.5 + 0.5) * window.innerHeight;
+      const distance = world.distanceTo(camera.position);
+      const screenRadius = distance > 0
+        ? (label.worldRadius / (distance * tanHalfFov)) * (window.innerHeight / 2)
+        : 0;
       label.div.style.display = 'block';
-      label.div.style.left = (v.x * 0.5 + 0.5) * window.innerWidth + 15 + 'px';
-      label.div.style.top = (-v.y * 0.5 + 0.5) * window.innerHeight - 5 + 'px';
+      label.div.style.left = screenX + 'px';
+      label.div.style.top = screenY + screenRadius + this.MARGIN_PX + 'px';
     }
   }
 

@@ -265,6 +265,32 @@ button.active {
   box-shadow: 0 0 40px rgba(255, 102, 0, 0.8);
 }
 
+#missions-panel {
+  top: 110px;
+  left: 225px;
+  width: 175px;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+}
+
+#missions-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#missions-buttons button {
+  width: 100%;
+  padding: 4px;
+  font-size: 9px;
+}
+
+#missions-buttons button.active {
+  background: linear-gradient(45deg, #006644, #00CC88) !important;
+  border-color: #00CC88 !important;
+  box-shadow: 0 0 12px rgba(0, 204, 136, 0.6) !important;
+}
+
 @media (max-width: 800px) {
   #trail-panel { display: none; }
   #referential-panel { width: 150px; }

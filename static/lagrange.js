@@ -12,6 +12,8 @@ import {
   createLagrangeMarker, createTrojans, updateTrojans, createStars,
 } from './js/scene.js';
 import { Labels, buildReferentialButtons, buildTrailButtons, showReferentialCaption, showInfoCard, hideInfoCard } from './js/ui.js';
+import { MISSIONS_DATA, initMissions, toggleMission, updateMissions, updateMissionLabels } from './js/missions.js';
+import { initVoyage, voyageTo, updateVoyage, startAutoTour, stopAutoTour, isAutoTourRunning } from './js/voyage.js';
 
 const SIM_START_DAYS_PER_SECOND = 3;
 
@@ -263,6 +265,22 @@ function toggleAsteroidRain() {
 }
 
 document.getElementById('rain-btn').onclick = toggleAsteroidRain;
+
+const tourBtn = document.createElement('button');
+tourBtn.textContent = '🎬 Tour automatique';
+tourBtn.className = 'action-btn';
+tourBtn.onclick = () => {
+  if (isAutoTourRunning()) {
+    stopAutoTour();
+    tourBtn.textContent = '🎬 Tour automatique';
+    tourBtn.classList.remove('active');
+  } else {
+    startAutoTour(-1);
+    tourBtn.textContent = '⏹️ Arrêter le tour';
+    tourBtn.classList.add('active');
+  }
+};
+document.getElementById('control-panel').insertBefore(tourBtn, document.getElementById('asteroid-counter'));
 document.getElementById('info-close').onclick = hideInfoCard;
 
 const speedSlider = document.getElementById('speed-slider');
@@ -272,6 +290,25 @@ speedSlider.oninput = () => {
 };
 
 buildTrailButtons(duration => { trailDuration = duration; });
+
+initMissions(scene, camera, null);
+const missionsContainer = document.getElementById('missions-buttons');
+MISSIONS_DATA.forEach(mission => {
+  const btn = document.createElement('button');
+  btn.textContent = mission.name;
+  btn.onclick = () => {
+    const active = toggleMission(mission.id);
+    btn.classList.toggle('active', active);
+  };
+  missionsContainer.appendChild(btn);
+});
+
+function getTargetObject(targetIndex) {
+  if (targetIndex === -1) return sun;
+  return planetMeshes[targetIndex];
+}
+
+initVoyage(camera, controls, getTargetObject, null);
 
 function selectReferential(centerIndex, name) {
   referential.centerIndex = centerIndex;
@@ -369,6 +406,12 @@ function animate(now) {
   const positions = heliocentricPositions();
   updateWorld(positions);
 
+  const center = referential.centerName === 'Soleil'
+    ? new THREE.Vector3(0, 0, 0)
+    : positions[referential.centerName].clone();
+  updateMissions(referential.simDays, center);
+  updateVoyage(deltaTime * 1000);
+
   for (let i = dynamicAsteroids.length - 1; i >= 0; i--) {
     const asteroid = dynamicAsteroids[i];
     const simDaysStep = deltaTime * SIM_START_DAYS_PER_SECOND * referential.speed;
@@ -416,6 +459,7 @@ function animate(now) {
   });
 
   labels.update(camera);
+  updateMissionLabels(camera);
   controls.update();
   composer.render();
 }

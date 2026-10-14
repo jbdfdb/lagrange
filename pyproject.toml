@@ -1,17 +1,22 @@
 [project]
 name = "lagrange"
-version = "0.1.0"
-description = ""
+version = "2.0.0"
+description = "Visualisation 3D interactive du Système Solaire et de ses Points de Lagrange"
 authors = [
     {name = "J-B de Fromont"}
 ]
 readme = "README.md"
-requires-python = "^3.13"
+license = {text = "MIT"}
+requires-python = ">=3.10"
 dependencies = [
-    "flask (>=3.1.1,<4.0.0)"
+    "flask (>=3.0.0,<4.0.0)",
+    "python-dotenv (>=1.0.0,<2.0.0)"
 ]
 
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

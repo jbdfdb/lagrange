@@ -13,7 +13,10 @@ Une simulation 3D interactive du système solaire dont la signature est de pouvo
 - **Points de Lagrange L1 à L5** pour les géantes, cliquables, avec explications (SOHO à L1, James-Webb à L2, troyens à L4/L5)
 - **Nuages de troyens** : 240 astéroïdes piégés aux L4/L5 de Jupiter
 - **Fiches encyclopédiques** au clic sur n'importe quel corps céleste
-- **Pluie d'astéroïdes** avec gravité du Soleil et des planètes, traînées configurables
+- **Pluie d'astéroïdes** avec gravité du Soleil et des planètes, traînées configurables ; 40 % naissent candidats troyens près de L4/L5 de Jupiter et s'y installent en libration (physique réelle : GM dérivé de Kepler, ratios de masse exacts, intégration en jours simulés)
+- **13 missions spatiales historiques** (Voyager, Pioneer, New Horizons, Apollo 11, JWST…) : trajectoires, survols datés et fiches
+- **Tour automatique cinématique** : visite guidée Soleil → planètes avec transitions fluides
+- **Backend professionalisé** : app factory, config dev/prod avec headers de sécurité, endpoint `/health`, tests pytest
 - **Effet waou** : shader solaire animé, bloom, Terre de nuit avec villes illuminées, étoiles colorées
 - **Écran de lancement** façon salle de contrôle, raccourcis clavier (1–9 = référentiels, Espace = pause)
 
@@ -30,8 +33,9 @@ Une simulation 3D interactive du système solaire dont la signature est de pouvo
 ## 🚀 Démarrage
 
 ```bash
-pip install flask
-python app.py
+pip install flask python-dotenv
+python app.py        # dev (debug auto-reload)
+FLASK_ENV=production python app.py   # prod (headers sécurité renforcés)
 ```
 
 Puis ouvrez http://127.0.0.1:5000 — tout est statique, aucun CDN requis (three.js est vendored dans `static/vendor/`).
@@ -53,7 +57,9 @@ tests/physics.test.mjs    # 9 tests unitaires node (sans framework)
 ```
 
 ```bash
-node tests/physics.test.mjs   # vérifie périodes, focalisation, loi des aires, L4/L5
+node tests/physics.test.mjs    # Kepler : périodes, focalisation, loi des aires, L4/L5
+node tests/asteroids.test.mjs  # pluie : isotropie, coquille, capture troyenne prouvée
+pytest tests/                  # serveur : routes, headers sécurité, modules statiques
 ```
 
 ## 🎮 Prise en main

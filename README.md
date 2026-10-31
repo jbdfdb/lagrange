@@ -4,7 +4,7 @@ Une simulation 3D interactive du système solaire dont la signature est de pouvo
 
 ![Three.js](https://img.shields.io/badge/Three.js-0.170-blue)
 ![Physique](https://img.shields.io/badge/Physique-Kepler-orange)
-![Tests](https://img.shields.io/badge/Tests-9_verts-brightgreen)
+![Tests](https://img.shields.io/badge/Tests-33_verts-brightgreen)
 
 ## ✨ Ce que vous y trouvez
 
@@ -32,35 +32,66 @@ Une simulation 3D interactive du système solaire dont la signature est de pouvo
 
 ## 🚀 Démarrage
 
+Sur le MBP, l'environnement est déjà prêt (`.venv`, Python 3.13) :
+
 ```bash
-pip install flask python-dotenv
-python app.py        # dev (debug auto-reload)
-FLASK_ENV=production python app.py   # prod (headers sécurité renforcés)
+cd ~/Applications-JB/lagrange
+.venv/bin/python app.py              # dev (debug, rechargement auto)
+FLASK_ENV=production .venv/bin/python app.py   # en-têtes de sécurité renforcés
 ```
 
-Puis ouvrez http://127.0.0.1:5000 — tout est statique, aucun CDN requis (three.js est vendored dans `static/vendor/`).
+Puis ouvrez http://127.0.0.1:5055. **Port 5055 et non 5000** : sur macOS, le 5000 est
+pris par le récepteur AirPlay. Le port se règle par `FLASK_PORT` dans `.env`.
+
+Sur une machine neuve : `poetry install` (ou `python -m venv .venv && .venv/bin/pip install
+flask python-dotenv pytest`), puis un `.env` avec `SECRET_KEY`. Les variables lues sont
+dans `config.py` : `FLASK_ENV`, `FLASK_HOST`, `FLASK_PORT`, `SECRET_KEY`, `APP_NAME`,
+`LOG_LEVEL`.
+
+three.js est embarqué dans `static/vendor/` : aucun CDN pour le code. Seule la police
+Orbitron vient encore de Google Fonts (voir `ROADMAP.md`).
+
+## 📍 Où elle vit
+
+- **Le code** : ce dépôt, GitHub `jbdfdb/lagrange`, branche `main`. Clone de travail sur le
+  MBP, `~/Applications-JB/lagrange`.
+- **Pas de base, pas de données** : tout le contenu (orbites, fiches, missions) est dans
+  `static/js/data.js` et `missions.js`, donc dans git.
+- **Le seul secret**, `.env`, est sauvegardé par l'archive de configuration chiffrée du MBP
+  (chaque jour à 13 h 20, vers le datacenter du Fedora).
+- **Plus servie en ligne** depuis le 29/10/2026 : elle tournait sur le VPS CX32 sous
+  `space.digitoptimmo.fr`, retirée en la rapatriant ici. La recette pour la remettre sur
+  un VPS est dans Architecture-JB, §4.10.
 
 ## 🗂️ Architecture
 
 ```
-app.py                    # serveur Flask minimal (une route)
-templates/index.html      # markup de l'interface
+app.py                    # Flask : app factory, deux routes (/ et /health), en-têtes de sécurité
+config.py                 # configuration dev / prod / test, lue dans .env
+templates/index.html      # markup de l'interface (aucune variable : la page est statique)
 static/style.css          # thème cyan/orange
 static/lagrange.js        # orchestrateur : boucle d'animation, interactions, caméra
 static/js/
   data.js                 # éléments orbitaux + contenu encyclopédique français
   physics.js              # Kepler (positions, équation de Kepler, points de Lagrange)
   scene.js                # objets three.js (soleil à shader, planètes, orbites, troyens)
+  asteroids.js            # pluie d'astéroïdes : gravité, captures aux L4/L5
+  missions.js             # 13 missions spatiales : trajectoires, survols, fiches
+  voyage.js               # tour automatique cinématique
   ui.js                   # labels DOM, panneaux, fiches
 static/vendor/            # three.js 0.170 + addons (bloom, OrbitControls)
-tests/physics.test.mjs    # 9 tests unitaires node (sans framework)
+docs/screenshots/         # aperçus du README
 ```
 
+## ✅ Tests
+
 ```bash
-node tests/physics.test.mjs    # Kepler : périodes, focalisation, loi des aires, L4/L5
-node tests/asteroids.test.mjs  # pluie : isotropie, coquille, capture troyenne prouvée
-pytest tests/                  # serveur : routes, headers sécurité, modules statiques
+node tests/physics.test.mjs      # 9 tests — Kepler : périodes, focalisation, loi des aires, L4/L5
+node tests/asteroids.test.mjs    # 12 tests — pluie : isotropie, coquille, capture troyenne prouvée
+.venv/bin/python -m pytest -q    # 12 tests — serveur : routes, en-têtes, configuration, modules statiques
 ```
+
+Tous verts le 31/10/2026 (Node 24, Python 3.13.1).
 
 ## 🎮 Prise en main
 
@@ -69,8 +100,6 @@ pytest tests/                  # serveur : routes, headers sécurité, modules s
 - Les étiquettes se placent sous chaque astre, à une distance qui suit le zoom (jamais superposées au disque ni au halo)
 - **Slider de vitesse** : de pause figée à 4× (≈ 3 jours simulés par seconde à 1×)
 
-## 🧭 Idées pour la suite
+## 🧭 La suite
 
-- Mode « JWST » : placer un télescope à L2 à la main
-- Potentiel effectif en contour coloré pour visualiser les puits de Lagrange
-- Tour guidé narratif « De Copernic à Lagrange »
+État, chantiers et idées : [`ROADMAP.md`](ROADMAP.md).

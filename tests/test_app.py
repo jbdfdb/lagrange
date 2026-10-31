@@ -9,7 +9,7 @@ class TestConfig:
     def test_base_config(self):
         assert Config.SECRET_KEY is not None
         assert Config.HOST == '127.0.0.1'
-        assert Config.PORT == 5000
+        assert Config.PORT == 5055
 
     def test_development_config(self):
         assert DevelopmentConfig.DEBUG is True

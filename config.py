@@ -13,7 +13,7 @@ class Config:
 
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-fallback-key-change-in-prod')
     HOST = os.getenv('FLASK_HOST', '127.0.0.1')
-    PORT = int(os.getenv('FLASK_PORT', 5000))
+    PORT = int(os.getenv('FLASK_PORT', 5055))  # 5000 est pris par le récepteur AirPlay de macOS
     APP_NAME = os.getenv('APP_NAME', 'Lagrange - Système Solaire')
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
 

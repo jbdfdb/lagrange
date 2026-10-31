@@ -40,9 +40,12 @@ Chacun prend quelques minutes, sans urgence.
 - [ ] **Resserrer la CSP de production** : `script-src 'unsafe-inline'` ne sert à rien, la
   page ne contient aucun script en ligne (un seul module externe). L'en-tête
   `X-XSS-Protection` est obsolète et peut partir.
-- [ ] **Déclarer `pytest`** comme dépendance de développement dans `pyproject.toml` : il
-  manquait dans l'environnement, et les tests du serveur ne se lançaient pas (ajouté à la
-  main le 31/10).
+- [x] **Déclarer `pytest`** comme dépendance de développement (31/10) : groupe `dev` de
+  `pyproject.toml`. Le `poetry.lock`, périmé depuis le 13/10 (il listait encore pythreejs,
+  ipywidgets, numpy…), a été régénéré, et le `.venv` concorde avec lui.
+  ⚠ **Sur le MBP, le terminal de VS Code exporte `VIRTUAL_ENV` vers le Python de pyenv** :
+  un `poetry install` nu installerait là, et non dans `.venv`. Toujours lancer
+  `VIRTUAL_ENV=$PWD/.venv poetry install`.
 - [ ] **Faire le ménage des branches sur GitHub** : `dev` (janvier) est entièrement reprise
   dans `main`, et `vibe/relaunch-lagrange-ea092f` pointe sur le même commit que `main`
   (c'est un reste de l'agent). Les deux peuvent être supprimées. **C'est un geste de JB.**

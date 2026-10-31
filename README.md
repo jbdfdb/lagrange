@@ -43,8 +43,8 @@ FLASK_ENV=production .venv/bin/python app.py   # en-têtes de sécurité renforc
 Puis ouvrez http://127.0.0.1:5055. **Port 5055 et non 5000** : sur macOS, le 5000 est
 pris par le récepteur AirPlay. Le port se règle par `FLASK_PORT` dans `.env`.
 
-Sur une machine neuve : `poetry install` (ou `python -m venv .venv && .venv/bin/pip install
-flask python-dotenv pytest`), puis un `.env` avec `SECRET_KEY`. Les variables lues sont
+Sur une machine neuve : `python -m venv .venv && VIRTUAL_ENV=$PWD/.venv poetry install --no-root`
+(le `VIRTUAL_ENV` explicite évite que Poetry n'installe dans un autre Python déjà actif), puis un `.env` avec `SECRET_KEY`. Les variables lues sont
 dans `config.py` : `FLASK_ENV`, `FLASK_HOST`, `FLASK_PORT`, `SECRET_KEY`, `APP_NAME`,
 `LOG_LEVEL`.
 
